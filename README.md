@@ -181,16 +181,3 @@ Frontend URL: `http://localhost:5173`
 - If port is busy, kill old process and restart
 - If messages are lost after restart, this is expected (in-memory storage)
 
-## Upload To GitHub
-
-```bash
-# from project root
-git init
-git add .
-git commit -m "Initial realtime chat app"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
-```
-
-If repository already exists locally, skip `git init` and just run add/commit/push.
