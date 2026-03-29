@@ -6,7 +6,7 @@ A full-stack realtime chat application built to demonstrate intern-level softwar
 
 Build a chat system where multiple users can:
 
-- Join a named room with a username
+- Register/login and join a named room
 - See online users in that room
 - Send and receive messages instantly
 - Receive system updates when users join or leave
@@ -15,6 +15,8 @@ Build a chat system where multiple users can:
 
 - Frontend: React + Vite + Socket.IO Client
 - Backend: Node.js + Express + Socket.IO
+- Auth: JWT + bcrypt password hashing
+- Database: MongoDB + Mongoose
 - Transport: WebSockets (Socket.IO fallback support)
 
 ## Core Features
@@ -23,7 +25,8 @@ Build a chat system where multiple users can:
 - Realtime message delivery
 - Online users list per room
 - System messages for join/leave activity
-- Per-room in-memory history (last 100 messages)
+- Per-room persisted history in MongoDB (last 100 messages shown)
+- JWT-based login and registration
 - Health endpoint for backend status check
 
 ## Project Structure
@@ -37,6 +40,11 @@ project1/
 
 ## Project Screenshots
 
+### Authentication Screen
+
+![Authentication Screen Placeholder](docs/screenshots/auth-screenshot.png)
+
+
 ### Join Room Screen
 
 ![Join Room Screen](docs/screenshots/join-room.png)
@@ -49,7 +57,7 @@ project1/
 
 ### 1. User joins room
 
-1. User enters `username` and `room` in frontend
+1. User logs in/registers, then enters `room` in frontend
 2. Frontend emits `join_room`
 3. Server:
 	 - Joins the socket to that room
@@ -74,10 +82,14 @@ project1/
 
 ## Backend State Model
 
-The backend keeps runtime state in memory:
+The backend keeps active room users in memory and message history in MongoDB:
 
-- `roomUsers: Map<room, Set<{ socketId, username }>>`
-- `roomMessages: Map<room, message[]>`
+- `roomUsers: Map<room, Map<socketId, { socketId, username }>>`
+
+MongoDB collections:
+
+- `users` for account credentials/profile
+- `messages` for persisted room messages
 
 `message` object shape:
 
@@ -96,7 +108,7 @@ The backend keeps runtime state in memory:
 
 ### Client -> Server
 
-- `join_room` with `{ room, username }`
+- `join_room` with `{ room }`
 - `send_message` with `{ room, message }`
 
 ### Server -> Client
@@ -111,6 +123,20 @@ The backend keeps runtime state in memory:
 
 - Node.js 18+
 - npm 9+
+- MongoDB running locally or remotely
+
+### 0) Configure backend env
+
+```bash
+cd server
+cp .env.example .env
+```
+
+Set values in `.env`:
+
+- `PORT` (default 4000)
+- `MONGODB_URI` (MongoDB connection string)
+- `JWT_SECRET` (long random secret)
 
 ### 1) Start backend
 
@@ -157,20 +183,19 @@ Frontend URL: `http://localhost:5173`
 
 1. Open `http://localhost:5173` in normal browser window
 2. Open the same URL in an incognito/private window
-3. Join same room with two different usernames
-4. Send messages from both windows
+3. Register/login in both windows with two different accounts
+4. Join the same room in both windows
+5. Send messages from both windows and refresh to verify message persistence
 
 ## Current Limitations
 
-- No authentication yet
-- No message persistence (in-memory only)
 - No typing indicators or read receipts
 - No file/image sharing
 
 ## Roadmap (Production Improvements)
 
-- Add JWT auth and protected rooms
-- Persist chat history in PostgreSQL
+- Add refresh tokens and secure httpOnly cookie flow
+- Add role-based room moderation
 - Add Redis adapter for horizontal scaling
 - Add rate limiting and input moderation
 - Add Docker and deployment pipeline
@@ -179,5 +204,5 @@ Frontend URL: `http://localhost:5173`
 
 - If frontend does not connect, confirm backend is running on port 4000
 - If port is busy, kill old process and restart
-- If messages are lost after restart, this is expected (in-memory storage)
+- If rooms are empty after restart, this is expected (presence is in-memory only)
 

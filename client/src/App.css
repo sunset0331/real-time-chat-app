@@ -14,6 +14,12 @@
   gap: 0.8rem;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .topbar h1 {
   margin: 0;
   font-size: clamp(1.4rem, 1rem + 1.5vw, 2rem);
@@ -98,6 +104,33 @@ button {
 
 button:hover {
   background: #0f4cd5;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  border-color: #bfc7d4;
+  background: #fff;
+  color: #1d2b45;
+}
+
+.secondary-btn:hover {
+  background: #f4f7ff;
+}
+
+.error-text {
+  margin: 0;
+  color: #8f2632;
+  font-size: 0.9rem;
+}
+
+.session-meta {
+  margin: 0 0 0.8rem;
+  color: #5f6b7d;
+  font-size: 0.9rem;
 }
 
 .chat-layout {
